@@ -30,6 +30,7 @@
 #include <string>
 #include <sstream>
 #include <ctime>
+#include <compare>
 #include <Windows.h>
 
 class Time
@@ -62,12 +63,18 @@ public:
 	}
 
 	//перегрузки 
-	bool operator< (const Time& time);
-	bool operator<= (const Time& time);
-	bool operator> (const Time& time);
-	bool operator>= (const Time& time);
 	bool operator== (const Time& time);
 	bool operator!= (const Time& time);
+	std::strong_ordering operator<=>(const Time& time) const {
+		std::strong_ordering res;
+		if (hours != time.hours) { res = hours <=> time.hours; }
+		else
+			if (minutes != time.minutes) { res = minutes <=> time.minutes; }
+			else
+				res = seconds <=> time.seconds;
+		return res;
+	}
+
 	Time operator+ (const Time& time) const;
 
 	int operator-(const Time& time) const;
@@ -203,46 +210,6 @@ Time::Time(tm* time)
 	hours = { time->tm_hour };
 	minutes = { time->tm_min };
 	seconds = { time->tm_sec };
-}
-
-bool Time::operator<(const Time& time)
-{
-	bool res{};
-	if (hours < time.hours ||
-		hours == time.hours && minutes < time.minutes ||
-		hours == time.hours && minutes == time.minutes && seconds < time.seconds)
-		res = 1;
-	return res;
-}
-
-bool Time::operator<=(const Time& time)
-{
-	bool res{};
-	if (hours < time.hours ||
-		hours == time.hours && minutes < time.minutes ||
-		hours == time.hours && minutes == time.minutes && seconds <= time.seconds)
-		res = 1;
-	return res;
-}
-
-bool Time::operator>(const Time& time)
-{
-	bool res{};
-	if (hours > time.hours ||
-		hours == time.hours && minutes > time.minutes ||
-		hours == time.hours && minutes == time.minutes && seconds > time.seconds)
-		res = 1;
-	return res;
-}
-
-bool Time::operator>=(const Time& time)
-{
-	bool res{};
-	if (hours > time.hours ||
-		hours == time.hours && minutes > time.minutes ||
-		hours == time.hours && minutes == time.minutes && seconds >= time.seconds)
-		res = 1;
-	return res;
 }
 
 bool Time::operator==(const Time& time)
