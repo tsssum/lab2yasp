@@ -25,278 +25,152 @@
 // Задача должна демонстрировать работу всех методов, для этого пользователь
 //  должен мочь ввести Объект_A и Объект_B.
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <ctime>
-#include <compare>
-#include <Windows.h>
+#include "Time.h"
 
-class Time
-{
-private:
-	int hours;
-	int minutes;
-	int seconds;
-	void valid_time();
-public:
-	int get_hours();
-	int get_minutes();
-	int get_seconds();
-
-	Time(int h, int m, int s);
-	Time(const std::string& str);
-	Time(int sec);
-	Time(tm *time);
-
-	friend std::ostream& operator<<(std::ostream& out, const Time& time) {
-		out << time.hours << ":" << time.minutes << ":" << time.seconds << '\n';
-		return out;
-	}
-
-	friend std::istream& operator>>(std::istream& in, Time& time) {
-		char c;
-		in >> time.hours >> c >> time.minutes >> c >> time.seconds;
-		time.valid_time();
-		return in;
-	}
-
-	//перегрузки 
-	bool operator== (const Time& time);
-	bool operator!= (const Time& time);
-	std::strong_ordering operator<=>(const Time& time) const {
-		std::strong_ordering res;
-		if (hours != time.hours) { res = hours <=> time.hours; }
-		else
-			if (minutes != time.minutes) { res = minutes <=> time.minutes; }
-			else
-				res = seconds <=> time.seconds;
-		return res;
-	}
-
-	Time operator+ (const Time& time) const;
-
-	int operator-(const Time& time) const;
-	int to_seconds();
-	int to_minutes();
-	int seconds_between(const Time& time);
-	Time operator+(int sec);
-	Time seconds_plus(int sec);
-	Time seconds_minus(int sec);
-	int compare(const Time& time);
-	std::string to_string();
-	void print_time(std::ostream& ostr);
-	void time_in(std::istream& istr);
-	~Time();
-};
+int menu(const char* message);
+int exit();
+void print_time(Time& time, std::ostream& ostr);
+Time time_in1(std::istream& istr);
+Time time_in2(std::istream& istr);
+Time time_in3(std::istream& istr);
+Time time_in4();
+void time_in(int option, Time& time, std::istream& istr);
 
 int main()
 {
     SetConsoleOutputCP(1251);
-	//иниц циферками
-	std::cout << "-> ";
-	Time t1(0);
+    Time time;
+    short option{};
+    do
+    {
+        option = menu("Задачи:\n1. Вычисление разности между двумя моментами времени в секундах.\n2. Сложение времени и заданного количества секунд\n3. Вычитание из времени заданного количества секунд\n4. Сравнение 2 моментов времени\n5. Перевод в секунды\n6. Перевод в минуты\n7. Завершение работы");
+        if (option != 7)
+        {
+            short option2 = menu("Как вводить?\n1. Ввод из файла\n2. Ввод с клавиатуры");
+            short option3 = menu("Как выводить?\n1. Вывод в файл\n2. Вывод в консоль");
+            short option4 = menu("Задание времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных");
 
-	/*std::cout << "Введите имя файла:\n>";
-	std::string file_name;
-	std::cin >> file_name;
-	std::ifstream file(file_name);*/
+            switch (option2)
+            {
+            case 1:
+            {
+                std::cout << "Введите имя файла:\n>";
+                std::string file_name;
+                std::cin >> file_name;
+                std::ifstream file(file_name);
+                time_in(option4, time, file);
+                break;
+            }
+            case 2:
+            {
+                time_in(option4, time, std::cin);
+                break;
+            }
+            default:
+                break;
+            }
 
-
-	//иниц строкой
-	//std::cout << "-> ";
-	//std::string input;
-	//std::getline(std::cin, input);
-	//Time t(input);
-	//std::cout << t ;
-
-	//иниц секундами
-	/*std::cout << "-> ";
-	int sec{};
-	std::cin >> sec;
-	Time t(sec);
-	t.print_time(std::cout);*/
-
+            switch (option3)
+            {
+            case 1:
+            {
+                std::cout << "Введите имя файла:\n>";
+                std::string file_name;
+                std::cin >> file_name;
+                std::ofstream file(file_name);
+                print_time(time, file);
+                break;
+            }
+            case 2:
+            {
+                print_time(time, std::cout);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+        option = exit();
+    } while (option != 7);
 	//встроенный?
-	/*time_t now = time(0);
-	tm time{};
-	localtime_s(&time, &now);
-	Time t(&time);
-	t.print_time(std::cout);*/
+	/**/
 
 	std::cin.ignore(std::cin.rdbuf()->in_avail()).get();
 }
 
-void Time::valid_time()
+int menu(const char* message)
 {
-	int tmp{};
-	if (seconds > 59)
-	{
-		tmp = seconds / 60;
-		seconds = seconds % 60;
-		minutes += tmp;
-		tmp = 0;
-	}
-	if (minutes > 59)
-	{
-		tmp = minutes / 60;
-		minutes = minutes % 60;
-		hours += tmp;
-		tmp = 0;
-	}
-
-	if (seconds < 0)
-	{
-		minutes -= abs(seconds / 60) +1;
-		seconds += 60;
-	}
-
-	if (minutes < 0)
-	{
-		if (hours)
-		{
-			hours-= abs(minutes/60)+1;
-			minutes += 60;
-		}
-		else
-			std::cout << "Время закончилось!!\n";
-	}
-
-	if (hours <0)
-		std::cout << "Время закончилось!!\n";
+	std::cout << message <<"\n-> ";
+	int option{};
+    std::cin >> option;
+	std::cout << "\n";
+	return option;
 }
 
-int Time::get_hours()
+int exit()
 {
-	return hours;
+	std::cout << "\nЗавершить работу? (Y/любая клавиша): ";
+	char is_exit;
+	short option_exit{};
+	std::cin >> is_exit;
+	if (is_exit == 'Y' || is_exit == 'y')
+		option_exit = 7;
+	return option_exit;
 }
 
-int Time::get_minutes()
+void print_time(Time& time, std::ostream& ostr)
 {
-	return minutes;
+	ostr << time;
 }
 
-int Time::get_seconds()
+Time time_in1(std::istream& istr)
 {
-	return seconds;
+    int h, m, s;
+    if (&istr == &std::cin) std::cout << "Введите время (часы, минуты, секунды через пробел)";
+    istr >> h >> m >> s;
+    Time time(h, m, s);
+    return time;
 }
 
-Time::Time(int h, int m, int s) //учесть что секунд может быть больше
+Time time_in2(std::istream& istr)
 {
-	hours = { h };
-	minutes = { m };
-	seconds = { s };
-	valid_time();
+    Time time;
+    istr >> time;
+    return time;
 }
 
-Time::Time(const std::string& str)
+Time time_in3(std::istream& istr)
 {
-	std::istringstream ss(str);
-	char c;
-	ss >> hours >> c >> minutes >> c >> seconds;
-	valid_time();
+    int sec;
+    istr >> sec;
+    Time time(sec);
+    return time;
 }
 
-Time::Time(int sec)
+Time time_in4()
 {
-	seconds = { sec };
-	hours = minutes = {};
-	valid_time();
+    time_t now = time(0);
+    tm time{};
+    localtime_s(&time, &now);
+    Time t(&time);
+    return t;
 }
 
-Time::Time(tm* time)
+void time_in(int option, Time& time, std::istream& istr)
 {
-	hours = { time->tm_hour };
-	minutes = { time->tm_min };
-	seconds = { time->tm_sec };
-}
-
-bool Time::operator==(const Time& time)
-{
-	return hours == time.hours && minutes == time.minutes && seconds == time.seconds;
-}
-
-bool Time::operator!=(const Time& time)
-{
-	return !(hours == time.hours && minutes == time.minutes && seconds == time.seconds);
-}
-
-Time Time::operator+(const Time& time) const
-{
-	return Time(hours+time.hours, minutes+time.minutes, seconds + time.seconds);
-}
-
-int Time::operator-(const Time& time) const
-{
-	int final_sec{ hours * 3600 - time.hours * 3600
-		+ minutes * 60 - time.minutes * 60
-		+ seconds - time.seconds };
-	return abs(final_sec);
-}
-
-int Time::to_seconds()
-{
-	return hours * 3600 + minutes * 60 + seconds;
-}
-
-int Time::to_minutes()
-{
-	int t{ hours * 60 + minutes};
-	if (seconds > 0)
-		t++;
-	return t;
-}
-
-int Time::seconds_between(const Time& time)
-{
-	Time t(*this - time);
-	return t.to_seconds();
-}
-
-Time Time::operator+(int sec)
-{
-	return Time(hours, minutes, seconds + sec);
-}
-
-Time Time::seconds_plus(int sec)
-{
-	return Time((*this).to_seconds() +sec);
-}
-
-Time Time::seconds_minus(int sec)
-{
-	return Time((*this).to_seconds() - sec);
-}
-
-int Time::compare(const Time& time)
-{
-	int res{ -1 };
-	if (*this > time)
-		res = 1;
-	else
-		if (*this == time)
-			res = 0;
-	return res;
-}
-
-std::string Time::to_string()
-{
-	std::ostringstream str;
-	str << hours << ":" << minutes << ":" << seconds;
-	return str.str();
-}
-
-void Time::print_time(std::ostream& ostr)
-{
-	ostr << *this;
-}
-
-void Time::time_in(std::istream& istr)
-{
-	istr >> *this;
-}
-
-Time::~Time()
-{
+    switch (option)
+    {
+    case 1:
+        time = time_in1(istr);
+        break;
+    case 2:
+        time = time_in2(istr);
+        break;
+    case 3:
+        time = time_in3(istr);
+        break;
+    default:
+        time = time_in4();
+        break;
+    }
 }
