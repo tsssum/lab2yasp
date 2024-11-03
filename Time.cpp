@@ -154,10 +154,11 @@ Time Time::seconds_minus(int sec)
 int Time::compare(const Time& time)
 {
 	int res{ -1 };
-	if (*this > time)
+	std::strong_ordering id{ (*this) <=> time };
+	if (id == std::strong_ordering::greater)
 		res = 1;
 	else
-		if (*this == time)
+		if (id == std::strong_ordering::equal)
 			res = 0;
 	return res;
 }
