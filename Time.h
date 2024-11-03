@@ -13,12 +13,13 @@ private:
 	int hours;
 	int minutes;
 	int seconds;
+	bool valid;
 	void valid_time();
 public:
 	int get_hours();
 	int get_minutes();
 	int get_seconds();
-
+	bool is_valid();
 	Time();
 	Time(int h, int m, int s);
 	Time(const std::string& str);

@@ -32,11 +32,17 @@ void Time::valid_time()
 			minutes += 60;
 		}
 		else
+		{
 			std::cout << "Время закончилось!!\n";
+			valid = 0;
+		}
 	}
 
 	if (hours < 0)
+	{
 		std::cout << "Время закончилось!!\n";
+		valid = 0;
+	}
 }
 
 int Time::get_hours()
@@ -59,6 +65,7 @@ Time::Time(int h, int m, int s) //учесть что секунд может быть больше
 	hours = { h };
 	minutes = { m };
 	seconds = { s };
+	valid = { 1 };
 	valid_time();
 }
 
@@ -67,6 +74,7 @@ Time::Time(const std::string& str)
 	std::istringstream ss(str);
 	char c;
 	ss >> hours >> c >> minutes >> c >> seconds;
+	valid = { 1 };
 	valid_time();
 }
 
@@ -74,6 +82,7 @@ Time::Time(int sec)
 {
 	seconds = { sec };
 	hours = minutes = {};
+	valid = { 1 };
 	valid_time();
 }
 
@@ -82,6 +91,7 @@ Time::Time(tm* time)
 	hours = { time->tm_hour };
 	minutes = { time->tm_min };
 	seconds = { time->tm_sec };
+	valid = { 1 };
 }
 
 bool Time::operator==(const Time& time)
@@ -172,6 +182,11 @@ std::string Time::to_string()
 
 Time::~Time()
 {
+}
+
+bool Time::is_valid()
+{
+	return valid;
 }
 
 Time::Time()

@@ -27,7 +27,11 @@
 
 #include "Time.h"
 
-int menu(const char* message);
+bool condition_for_main_menu(int x);
+bool condition_for_ent(int x);
+bool condition_for_time(int x);
+void read_and_check(int& x, bool(*condition)(int));
+int menu(const char* message, bool(*condition)(int));
 int exit();
 template<typename T> void print_time(T obj, std::ostream& ostr);
 Time time_in_num(std::istream& istr);
@@ -46,12 +50,12 @@ int main()
     short option{};
     do
     {
-        option = menu("\nЗадачи:\n1. Вычисление разности между двумя моментами времени в секундах.\n2. Сложение времени и заданного количества секунд\n3. Вычитание из времени заданного количества секунд\n4. Сравнение 2 моментов времени\n5. Перевод в секунды\n6. Перевод в минуты\n7. Завершение работы");
+        option = menu("\nЗадачи:\n1. Вычисление разности между двумя моментами времени в секундах.\n2. Сложение времени и заданного количества секунд\n3. Вычитание из времени заданного количества секунд\n4. Сравнение 2 моментов времени\n5. Перевод в секунды\n6. Перевод в минуты\n7. Завершение работы", condition_for_main_menu);
         if (option != 7)
         {
-            short option2 = menu("Как вводить?\n1. Ввод из файла\n2. Ввод с клавиатуры");
-            short option3 = menu("Как выводить?\n1. Вывод в файл\n2. Вывод в консоль");
-            short option4 = menu("Задание времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных");
+            short option2 = menu("Как вводить?\n1. Ввод из файла\n2. Ввод с клавиатуры", condition_for_ent);
+            short option3 = menu("Как выводить?\n1. Вывод в файл\n2. Вывод в консоль", condition_for_ent);
+            short option4 = menu("Задание времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition_for_time);
 
             switch (option2)
             {
@@ -62,9 +66,9 @@ int main()
                 std::cin >> file_name;
                 std::ifstream file(file_name);
                 time_in(option4, time, file);
-                if (option == 1 || option == 3 || option == 4)
+                if (time.is_valid() && (option == 1 || option == 3 || option == 4))
                 {
-                    short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных");
+                    short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition_for_time);
                     time_in(option5, time2, file);
                 }
                 break;
@@ -72,9 +76,9 @@ int main()
             case 2:
             {
                 time_in(option4, time, std::cin);
-                if (option == 1 || option == 3 || option == 4)
+                if (time.is_valid() && (option == 1 || option == 3 || option == 4))
                 {
-                    short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных");
+                    short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition_for_time);
                     time_in(option5, time2, std::cin);
                 }
                 break;
@@ -83,109 +87,106 @@ int main()
                 break;
             }
             
-            switch (option)
+            if (time.is_valid() && time2.is_valid())
             {
-            case 1: //Вычисление разности между двумя моментами времени в секундах
-            {
-                short choice = menu("\nКак вычислять?\n1. Методом\n2. Перегрузкой");
-                if (choice == 1)
-                    equal = time.seconds_between(time2);
-                else
-                    equal = time - time2;
-                std::cout << "Разница составляет: ";
-                break;
-            }
-            case 2://Сложение времени и заданного количества секунд
-            {
-                int sec;
-                std::cout << "Сколько секунд прибавить?\n-> ";
-                std::cin >> sec;
-                short choice = menu("\nКак вычислять?\n1. Методом\n2. Перегрузкой");
-                if (choice == 1)
-                    time.seconds_plus(sec);
-                else
-                    time = time + sec;
-                break;
-            }
-            case 3://Вычитание из времени заданного количества секунд
-            {
-                int sec;
-                std::cout << "Сколько секунд вычесть?\n-> ";
-                std::cin >> sec;
-                time.seconds_minus(sec);
-                break;
-            }
-            case 4://Сравнение 2 моментов времени
-            {
-                int t = time.compare(time2);
-                if (t == 0)
-                    answer = "Данные моменты времени равны";
-                else 
-                    if (t == 1)
-                        answer = "Первый момент произошёл позже, чем второй";
+                switch (option)
+                {
+                case 1: //Вычисление разности между двумя моментами времени в секундах
+                {
+                    short choice = menu("\nКак вычислять?\n1. Методом\n2. Перегрузкой", condition_for_ent);
+                    if (choice == 1)
+                        equal = time.seconds_between(time2);
                     else
-                        answer = "Первый момент произошёл раньше, чем второй";
-                break;
-            }
-            case 5://Перевод в секунды
-            {
-                equal = time.to_seconds();
-                break;
-            }
-            case 6://Перевод в минуты
-            {
-                equal = time.to_minutes();
-                break;
-            }
-            default:
-                break;
-            }
+                        equal = time - time2;
+                    std::cout << "Разница составляет: ";
+                    break;
+                }
+                case 2://Сложение времени и заданного количества секунд
+                {
+                    int sec;
+                    std::cout << "Сколько секунд прибавить?\n-> ";
+                    std::cin >> sec;
+                    short choice = menu("\nКак вычислять?\n1. Методом\n2. Перегрузкой", condition_for_ent);
+                    if (choice == 1)
+                        time.seconds_plus(sec);
+                    else
+                        time = time + sec;
+                    break;
+                }
+                case 3://Вычитание из времени заданного количества секунд
+                {
+                    int sec;
+                    std::cout << "Сколько секунд вычесть?\n-> ";
+                    std::cin >> sec;
+                    time.seconds_minus(sec);
+                    break;
+                }
+                case 4://Сравнение 2 моментов времени
+                {
+                    int t = time.compare(time2);
+                    if (t == 0)
+                        answer = "Данные моменты времени равны";
+                    else
+                        if (t == 1)
+                            answer = "Первый момент произошёл позже, чем второй";
+                        else
+                            answer = "Первый момент произошёл раньше, чем второй";
+                    break;
+                }
+                case 5://Перевод в секунды
+                {
+                    equal = time.to_seconds();
+                    break;
+                }
+                case 6://Перевод в минуты
+                {
+                    equal = time.to_minutes();
+                    break;
+                }
+                default:
+                    break;
+                }
 
-            switch (option3)
-            {
-            case 1:
-            {
-                std::cout << "Введите имя файла для вывода:\n>";
-                std::string file_name;
-                std::cin >> file_name;
-                std::ofstream file(file_name);
-                if (option == 1 || option == 5 || option == 6)
-                    print_time(equal, file);
-                else
-                    if (option == 4)
-                        print_time(answer, file);
+
+                switch (option3)
+                {
+                case 1:
+                {
+                    std::cout << "Введите имя файла для вывода:\n>";
+                    std::string file_name;
+                    std::cin >> file_name;
+                    std::ofstream file(file_name);
+                    if (option == 1 || option == 5 || option == 6)
+                        print_time(equal, file);
                     else
-                        print_time(time, file);
-                break;
-            }
-            case 2:
-            {
-                if (option == 1 || option == 5 || option == 6)
-                    print_time(equal, std::cout);
-                else 
-                    if (option == 4)
-                        print_time(answer, std::cout);
+                        if (option == 4)
+                            print_time(answer, file);
+                        else
+                            print_time(time, file);
+                    break;
+                }
+                case 2:
+                {
+                    if (option == 1 || option == 5 || option == 6)
+                        print_time(equal, std::cout);
                     else
-                        print_time(time, std::cout);
-                break;
+                        if (option == 4)
+                            print_time(answer, std::cout);
+                        else
+                            print_time(time, std::cout);
+                    break;
+                }
+                default:
+                    break;
+                }
             }
-            default:
-                break;
-            }
+            else
+                std::cout << "Задание не может быть выполнено, так как время не может быть отрицательно!";
         }
         option = exit();
     } while (option != 7);
 
 	std::cin.get();
-}
-
-int menu(const char* message)
-{
-	std::cout << message <<"\n-> ";
-	int option{};
-    std::cin >> option;
-	std::cout << "\n";
-	return option;
 }
 
 int exit()
@@ -258,4 +259,39 @@ template<typename T>
 void print_time(T obj, std::ostream& ostr)
 {
     ostr << obj;
+}
+
+
+bool condition_for_main_menu(int x)
+{
+    return x > 0 && x < 8;
+}
+
+bool condition_for_ent(int x)
+{
+    return x > 0 && x < 3;
+}
+
+bool condition_for_time(int x)
+{
+    return x > 0 && x < 5;
+}
+void read_and_check(int& x, bool(*condition)(int)) //для проверки корректности выбора пользователя
+{
+    std::cout << "\n->";
+    while (!(std::cin >> x && condition(x))) {
+        std::cout << "Ошибка! Введите корректное значение:\n";
+        std::cin.clear();
+        std::cin.ignore(std::cin.rdbuf()->in_avail());
+        std::cout << "\n->";
+    }
+}
+
+int menu(const char* message, bool(*condition)(int))
+{
+    std::cout << message;
+    int option{};
+    read_and_check(option, condition);
+    std::cout << "\n";
+    return option;
 }
