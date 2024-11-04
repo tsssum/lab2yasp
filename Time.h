@@ -5,6 +5,8 @@
 #include <sstream>
 #include <ctime>
 #include <compare>
+#include <iomanip>
+#include <regex>
 #include <Windows.h>
 
 class Time
