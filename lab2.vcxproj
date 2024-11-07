@@ -132,13 +132,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lab2.cpp" />
-    <ClCompile Include="Time.cpp" />
+    <ClCompile Include="Time.ixx" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="file.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Time.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

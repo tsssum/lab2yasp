@@ -25,11 +25,18 @@
 // Задача должна демонстрировать работу всех методов, для этого пользователь
 //  должен мочь ввести Объект_A и Объект_B.
 
-#include "Time.h"
+import Time;
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <ctime>
+#include <compare>
+#include <regex>
+#include <Windows.h>
 
 bool condition(int x, int border);
-template<typename T>
-bool condition_for_time_int(T);
 void read_and_check(int& x, bool(*condition)(int, int), int border);
 int menu(const char* message, bool(*condition)(int, int), int border);
 int exit();
@@ -99,7 +106,7 @@ int main()
                     equal = time.seconds_between(time2);
                 else
                     equal = time - time2;
-                std::cout << "Разница составляет: ";
+                if(option3 == 2) std::cout << "Разница составляет: ";
                 break;
             }
             case 2://Сложение времени и заданного количества секунд
@@ -109,7 +116,7 @@ int main()
                 std::cin >> sec;
                 short choice = menu("\nКак вычислять?\n1. Методом\n2. Перегрузкой", condition, 3);
                 if (choice == 1)
-                    time.seconds_plus(sec);
+                    time = time.seconds_plus(sec);
                 else
                     time = time + sec;
                 break;
@@ -119,7 +126,7 @@ int main()
                 int sec;
                 std::cout << "Сколько секунд вычесть?\n-> ";
                 std::cin >> sec;
-                time.seconds_minus(sec);
+                time = time.seconds_minus(sec);
                 break;
             }
             case 4://Сравнение 2 моментов времени
