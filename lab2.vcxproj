@@ -133,7 +133,6 @@
   <ItemGroup>
     <ClCompile Include="lab2.cpp" />
     <ClCompile Include="Time.cpp" />
-    <ClCompile Include="Time.ixx" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="file.txt" />

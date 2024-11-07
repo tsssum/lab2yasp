@@ -5,7 +5,6 @@
 #include <sstream>
 #include <ctime>
 #include <compare>
-#include <iomanip>
 #include <regex>
 #include <Windows.h>
 
@@ -41,8 +40,8 @@ public:
 	}
 
 	//перегрузки 
-	bool operator== (const Time& time);
-	bool operator!= (const Time& time);
+	bool operator== (const Time& time) const;
+	bool operator!= (const Time& time) const;
 	std::strong_ordering operator<=>(const Time& time) const;
 	Time operator+ (const Time& time) const;
 
@@ -50,7 +49,7 @@ public:
 	int to_seconds();
 	int to_minutes();
 	int seconds_between(const Time& time);
-	Time operator+(int sec);
+	Time operator+(int sec) const;
 	Time seconds_plus(int sec);
 	Time seconds_minus(int sec);
 	int compare(const Time& time);

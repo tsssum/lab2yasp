@@ -60,6 +60,13 @@ int Time::get_seconds()
 	return seconds;
 }
 
+
+Time::Time()
+{
+	hours = minutes = seconds = {};
+	valid = { 1 };
+}
+
 Time::Time(int h, int m, int s) //учесть что секунд может быть больше
 {
 	hours = { h };
@@ -94,12 +101,12 @@ Time::Time(tm* time)
 	valid = { 1 };
 }
 
-bool Time::operator==(const Time& time)
+bool Time::operator==(const Time& time) const
 {
 	return hours == time.hours && minutes == time.minutes && seconds == time.seconds;
 }
 
-bool Time::operator!=(const Time& time)
+bool Time::operator!=(const Time& time) const
 {
 	return !(hours == time.hours && minutes == time.minutes && seconds == time.seconds);
 }
@@ -146,7 +153,7 @@ int Time::seconds_between(const Time& time)
 	return t.to_seconds();
 }
 
-Time Time::operator+(int sec)
+Time Time::operator+(int sec) const
 {
 	return Time(hours, minutes, seconds + sec);
 }
@@ -187,9 +194,4 @@ Time::~Time()
 bool Time::is_valid()
 {
 	return valid;
-}
-
-Time::Time()
-{
-	hours = minutes = seconds = {};
 }
