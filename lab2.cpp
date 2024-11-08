@@ -45,7 +45,7 @@ void print_time(T obj, std::ostream& ostr);
 Time time_in_num(std::istream& istr);
 Time time_in_str(std::istream& istr);
 Time time_in_sec(std::istream& istr);
-Time time_in_tm();
+Time time_in_tm(std::istream& istr);
 void time_in(int option, Time& time, std::istream& istr);
 
 int main()
@@ -128,7 +128,11 @@ int main()
                 int sec;
                 std::cout << "Сколько секунд вычесть?\n-> ";
                 std::cin >> sec;
-                time = time.seconds_minus(sec);
+                short choice = menu("\nКак вычислять?\n1. Методом\n2. Перегрузкой", condition, 3);
+                if (choice == 1)
+                    time = time.seconds_minus(sec);
+                else
+                    time = time - sec;
                 break;
             }
             case 4://Сравнение 2 моментов времени
@@ -262,11 +266,21 @@ Time time_in_sec(std::istream& istr)
     return time;
 }
 
-Time time_in_tm()
+Time time_in_tm(std::istream& istr)
 {
-    time_t now = time(0);
-    tm time{};
-    localtime_s(&time, &now);
+    struct tm time = {};
+    int h, m, s;
+    if (&istr == &std::cin) std::cout << "Введите время (часы, минуты, секунды через пробел): ";
+    istr >> h >> m >> s;
+    while (istr.fail() || h < 0 || m < 0 || s < 0) {
+        std::cout << "Некорректный ввод. Пожалуйста, введите целые числа.\n->";
+        istr.clear();
+        istr.ignore(std::cin.rdbuf()->in_avail());
+        istr >> h >> m >> s;
+    }
+    time.tm_hour = h;          
+    time.tm_min = m;        
+    time.tm_sec = s;
     Time t(&time);
     return t;
 }
@@ -285,7 +299,7 @@ void time_in(int option, Time& time, std::istream& istr)
         time = time_in_sec(istr);
         break;
     default:
-        time = time_in_tm();
+        time = time_in_tm(istr);
         break;
     }
 }
