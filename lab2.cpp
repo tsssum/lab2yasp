@@ -26,7 +26,6 @@
 //  должен мочь ввести Объект_A и Объект_B.
 
 import Time;
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -36,11 +35,13 @@ import Time;
 #include <regex>
 #include <Windows.h>
 
+std::string get_file_name();
 bool condition(int x, int border);
 void read_and_check(int& x, bool(*condition)(int, int), int border);
 int menu(const char* message, bool(*condition)(int, int), int border);
 int exit();
-template<typename T> void print_time(T obj, std::ostream& ostr);
+template<typename T> 
+void print_time(T obj, std::ostream& ostr);
 Time time_in_num(std::istream& istr);
 Time time_in_str(std::istream& istr);
 Time time_in_sec(std::istream& istr);
@@ -50,52 +51,53 @@ void time_in(int option, Time& time, std::istream& istr);
 int main()
 {
     SetConsoleOutputCP(1251);
-    Time time;
-    Time time2;
+    Time time, time2;
     int equal;
     std::string answer;
     short option{};
     do
     {
-        option = menu("\nЗадачи:\n1. Вычисление разности между двумя моментами времени в секундах.\n2. Сложение времени и заданного количества секунд\n3. Вычитание из времени заданного количества секунд\n4. Сравнение 2 моментов времени\n5. Перевод в секунды\n6. Перевод в минуты\n7. Простой вывод времени\n8. Завершение работы", condition, 9);
+        option = menu("\nЗадачи:\n1. Вычисление разности между двумя моментами времени в секундах.\n"
+            "2. Сложение времени и заданного количества секунд\n"
+            "3. Вычитание из времени заданного количества секунд\n"
+            "4. Сравнение 2 моментов времени\n5. Перевод в секунды\n6. Перевод в минуты\n"
+            "7. Простой вывод времени\n8. Завершение работы", condition, 9);
         if (option != 8)
         {
             short option2 = menu("Как вводить?\n1. Ввод из файла\n2. Ввод с клавиатуры", condition, 3);
             short option3 = menu("Как выводить?\n1. Вывод в файл\n2. Вывод в консоль", condition, 3);
-            short option4 = menu("Задание времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition, 5);
+            short option4 = menu("Задание времени:\n1. Числами (ввод через пробел)\n2. Строкой\n"
+                "3. Секундами\n4. Встроенным типом данных", condition, 5);
 
-            do
+            switch (option2)
             {
-                switch (option2)
+            case 1:
+            {
+                std::string file_name = get_file_name();
+                std::ifstream file(file_name);
+                time_in(option4, time, file);
+                if (option == 1 || option == 4)
                 {
-                case 1:
+                    short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n"
+                        "2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition, 5);
+                    time_in(option5, time2, file);
+                }
+                break;
+            }
+            case 2:
+            {
+                time_in(option4, time, std::cin);
+                if (option == 1 || option == 4)
                 {
-                    std::cout << "Введите имя файла для ввода:\n>";
-                    std::string file_name;
-                    std::cin >> file_name;
-                    std::ifstream file(file_name);
-                    time_in(option4, time, file);
-                    if (time.is_valid() && (option == 1 || option == 3 || option == 4))
-                    {
-                        short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition, 5);
-                        time_in(option5, time2, file);
-                    }
-                    break;
+                    short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n"
+                        "2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition, 5);
+                    time_in(option5, time2, std::cin);
                 }
-                case 2:
-                {
-                    time_in(option4, time, std::cin);
-                    if (time.is_valid() && (option == 1 || option == 3 || option == 4))
-                    {
-                        short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition, 5);
-                        time_in(option5, time2, std::cin);
-                    }
-                    break;
-                }
-                default:
-                    break;
-                }
-            } while (!(time.is_valid() && time2.is_valid()));
+                break;
+            }
+            default:
+                break;
+            }      
 
             switch (option)
             {
@@ -163,9 +165,7 @@ int main()
             {
             case 1:
             {
-                std::cout << "Введите имя файла для вывода:\n>";
-                std::string file_name;
-                std::cin >> file_name;
+                std::string file_name = get_file_name();
                 std::ofstream file(file_name);
                 if (option == 1 || option == 5 || option == 6)
                     print_time(equal, file);
@@ -184,7 +184,12 @@ int main()
                     if (option == 4)
                         print_time(answer, std::cout);
                     else
-                        print_time(time, std::cout);
+                        if (option == 3 && time.get_hours() < 0)
+                        {
+                            std::cout << "Время закончилось!\n";
+                        }
+                        else
+                            print_time(time, std::cout);
                 break;
             }
             default:
@@ -213,7 +218,7 @@ Time time_in_num(std::istream& istr)
     int h, m, s;
     if (&istr == &std::cin) std::cout << "Введите время (часы, минуты, секунды через пробел): ";
     istr >> h >> m >> s;
-    while (istr.fail()) {
+    while (istr.fail() || h < 0 || m < 0 || s < 0) {
         std::cout << "Некорректный ввод. Пожалуйста, введите целые числа.\n->";
         istr.clear();
         istr.ignore(std::cin.rdbuf()->in_avail());
@@ -247,7 +252,7 @@ Time time_in_sec(std::istream& istr)
     int sec;
     if (&istr == &std::cin) std::cout << "Введите время в секундах: ";
     istr >> sec;
-    while (istr.fail()) {
+    while (istr.fail() || sec < 0) {
         std::cout << "Некорректный ввод. Пожалуйста, введите целое число.\n->";
         istr.clear();
         istr.ignore(std::cin.rdbuf()->in_avail());
@@ -292,12 +297,20 @@ void print_time(T obj, std::ostream& ostr)
 }
 
 
+std::string get_file_name()
+{
+    std::cout << "Введите имя файла для ввода:\n>";
+    std::string file_name;
+    std::cin >> file_name;
+    return file_name;
+}
+
 bool condition(int x, int border)
 {
     return x > 0 && x < border;
 }
 
-void read_and_check(int& x, bool(*condition)(int, int), int border) //для проверки корректности выбора пользователя
+void read_and_check(int& x, bool(*condition)(int, int), int border)
 {
     std::cout << "\n->";
     while (!(std::cin >> x && condition(x, border))) {

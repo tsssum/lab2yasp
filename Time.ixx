@@ -15,13 +15,11 @@ private:
 	int hours;
 	int minutes;
 	int seconds;
-	bool valid;
 	void valid_time();
 public:
 	int get_hours();
 	int get_minutes();
 	int get_seconds();
-	bool is_valid();
 	Time();
 	Time(int h, int m, int s);
 	Time(const std::string& str);
@@ -46,6 +44,7 @@ public:
 	std::strong_ordering operator<=>(const Time& time) const;
 	Time operator+ (const Time& time) const;
 
+	Time operator- (int sec) const;
 	int operator-(const Time& time) const;
 	int to_seconds();
 	int to_minutes();
@@ -84,22 +83,8 @@ void Time::valid_time()
 
 	if (minutes < 0)
 	{
-		if (hours)
-		{
-			hours -= abs(minutes / 60) + 1;
-			minutes += 60;
-		}
-		else
-		{
-			std::cout << "Время закончилось!!\n";
-			valid = 0;
-		}
-	}
-
-	if (hours < 0)
-	{
-		std::cout << "Время закончилось!!\n";
-		valid = 0;
+		hours -= abs(minutes / 60) + 1;
+		minutes += 60;
 	}
 }
 
@@ -122,7 +107,6 @@ int Time::get_seconds()
 Time::Time()
 {
 	hours = minutes = seconds = {};
-	valid = { 1 };
 }
 
 Time::Time(int h, int m, int s) //учесть что секунд может быть больше
@@ -130,7 +114,6 @@ Time::Time(int h, int m, int s) //учесть что секунд может быть больше
 	hours = { h };
 	minutes = { m };
 	seconds = { s };
-	valid = { 1 };
 	valid_time();
 }
 
@@ -139,7 +122,6 @@ Time::Time(const std::string& str)
 	std::istringstream ss(str);
 	char c;
 	ss >> hours >> c >> minutes >> c >> seconds;
-	valid = { 1 };
 	valid_time();
 }
 
@@ -147,7 +129,6 @@ Time::Time(int sec)
 {
 	seconds = { sec };
 	hours = minutes = {};
-	valid = { 1 };
 	valid_time();
 }
 
@@ -156,7 +137,6 @@ Time::Time(tm* time)
 	hours = { time->tm_hour };
 	minutes = { time->tm_min };
 	seconds = { time->tm_sec };
-	valid = { 1 };
 }
 
 bool Time::operator==(const Time& time) const
@@ -182,6 +162,11 @@ std::strong_ordering Time::operator<=>(const Time& time) const {
 Time Time::operator+(const Time& time) const
 {
 	return Time(hours + time.hours, minutes + time.minutes, seconds + time.seconds);
+}
+
+Time Time::operator-(int sec) const
+{
+	return Time(hours, minutes, seconds - sec);
 }
 
 int Time::operator-(const Time& time) const
@@ -247,9 +232,4 @@ std::string Time::to_string()
 
 Time::~Time()
 {
-}
-
-bool Time::is_valid()
-{
-	return valid;
 }
