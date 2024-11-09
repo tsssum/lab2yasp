@@ -35,7 +35,8 @@ import Time;
 #include <regex>
 #include <Windows.h>
 
-std::string get_file_name();
+template<typename T>
+T get_file();
 bool condition(int x, int border);
 void read_and_check(int& x, bool(*condition)(int, int), int border);
 int menu(const char* message, bool(*condition)(int, int), int border);
@@ -73,8 +74,7 @@ int main()
             {
             case 1:
             {
-                std::string file_name = get_file_name();
-                std::ifstream file(file_name);
+                std::ifstream file = get_file<std::ifstream>();
                 time_in(option4, time, file);
                 if (option == 1 || option == 4)
                 {
@@ -169,8 +169,7 @@ int main()
             {
             case 1:
             {
-                std::string file_name = get_file_name();
-                std::ofstream file(file_name);
+                std::ofstream file = get_file<std::ofstream>();
                 if (option == 1 || option == 5 || option == 6)
                     print_time(equal, file);
                 else
@@ -235,8 +234,11 @@ Time time_in_num(std::istream& istr)
 Time time_in_str(std::istream& istr)
 {
     std::string str;
-    if (&istr == &std::cin) std::cout << "Введите время (часы, минуты, секунды, разделённые двоеточием): ";
-    istr.ignore(std::cin.rdbuf()->in_avail());
+    if (&istr == &std::cin)
+    {
+        std::cout << "Введите время (часы, минуты, секунды, разделённые двоеточием): ";
+        istr.ignore(std::cin.rdbuf()->in_avail());
+    }
     std::getline(istr, str);
     std::regex time_regex(R"(\s*(\d+)\s*:\s*(\d+)\s*:\s*(\d+)\s*)");
     std::smatch matches;
@@ -310,13 +312,22 @@ void print_time(T obj, std::ostream& ostr)
     ostr << obj;
 }
 
-
-std::string get_file_name()
+template<typename T>
+T get_file()
 {
-    std::cout << "Введите имя файла для ввода:\n>";
+    std::cout << "Введите имя файла:\n>";
     std::string file_name;
     std::cin >> file_name;
-    return file_name;
+    T file(file_name);
+    while (!file)
+    {
+        std::cout << "Файл не найден! Введите корректное название файла!\n-> ";
+        std::cin.clear();
+        std::string file_name;
+        std::cin >> file_name;
+        file.open(file_name);
+    }
+    return file;
 }
 
 bool condition(int x, int border)
