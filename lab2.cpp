@@ -80,7 +80,7 @@ int main()
                 {
                     short option5 = menu("\nЗадание нового времени:\n1. Числами (ввод через пробел)\n"
                         "2. Строкой\n3. Секундами\n4. Встроенным типом данных", condition, 5);
-                    time_in(option5, time2, file);
+                    time_in(option5, time2, std::cin);
                 }
                 break;
             }
@@ -108,7 +108,7 @@ int main()
                     equal = time.seconds_between(time2);
                 else
                     equal = time - time2;
-                if(option3 == 2) std::cout << "Разница составляет: ";
+                if (option3 == 2) std::cout << "Разница составляет: ";
                 break;
             }
             case 2://Сложение времени и заданного количества секунд
@@ -161,10 +161,7 @@ int main()
             {
                 break;
             }
-            default:
-                break;
             }
-
             switch (option3)
             {
             case 1:
@@ -354,3 +351,5 @@ int menu(const char* message, bool(*condition)(int, int), int border)
     std::cout << "\n";
     return option;
 }
+
+//3 лаба 6
